@@ -247,19 +247,26 @@ func EnsureDBVersionContext(ctx context.Context, db *sql.DB) (int64, error) {
 // createVersionTable creates the db version table and inserts the
 // initial 0 value into it.
 func createVersionTable(ctx context.Context, db *sql.DB) error {
-	txn, err := db.BeginTx(ctx, nil)
-	if err != nil {
+	if err := store.CreateVersionTableNoTx(ctx, db, TableName()); err != nil {
 		return err
 	}
-	if err := store.CreateVersionTable(ctx, txn, TableName()); err != nil {
-		_ = txn.Rollback()
+	if err := store.InsertVersionNoTx(ctx, db, TableName(), 0); err != nil {
 		return err
 	}
-	if err := store.InsertVersion(ctx, txn, TableName(), 0); err != nil {
-		_ = txn.Rollback()
-		return err
-	}
-	return txn.Commit()
+	return nil
+	// txn, err := db.BeginTx(ctx, nil)
+	// if err != nil {
+	// 	return err
+	// }
+	// if err := store.CreateVersionTable(ctx, txn, TableName()); err != nil {
+	// 	_ = txn.Rollback()
+	// 	return err
+	// }
+	// if err := store.InsertVersion(ctx, txn, TableName(), 0); err != nil {
+	// 	_ = txn.Rollback()
+	// 	return err
+	// }
+	// return txn.Commit()
 }
 
 // GetDBVersion is an alias for EnsureDBVersion, but returns -1 in error.

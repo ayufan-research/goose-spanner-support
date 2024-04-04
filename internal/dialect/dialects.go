@@ -8,6 +8,7 @@ const (
 	Mysql      Dialect = "mysql"
 	Sqlite3    Dialect = "sqlite3"
 	Sqlserver  Dialect = "sqlserver"
+	Spanner    Dialect = "spanner"
 	Redshift   Dialect = "redshift"
 	Tidb       Dialect = "tidb"
 	Clickhouse Dialect = "clickhouse"

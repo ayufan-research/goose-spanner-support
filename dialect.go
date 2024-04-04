@@ -38,6 +38,8 @@ func SetDialect(s string) error {
 		d = dialect.Mysql
 	case "sqlite3", "sqlite":
 		d = dialect.Sqlite3
+	case "spanner":
+		d = dialect.Spanner
 	case "mssql", "azuresql", "sqlserver":
 		d = dialect.Sqlserver
 	case "redshift":

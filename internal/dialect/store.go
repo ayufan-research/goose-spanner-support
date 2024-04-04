@@ -22,6 +22,9 @@ type Store interface {
 	// CreateVersionTable creates the version table within a transaction.
 	// This table is used to store goose migrations.
 	CreateVersionTable(ctx context.Context, tx *sql.Tx, tableName string) error
+	// CreateVersionTable creates the version table without a transaction.
+	// This table is used to store goose migrations.
+	CreateVersionTableNoTx(ctx context.Context, db *sql.DB, tableName string) error
 
 	// InsertVersion inserts a version id into the version table within a transaction.
 	InsertVersion(ctx context.Context, tx *sql.Tx, tableName string, version int64) error
@@ -53,6 +56,8 @@ func NewStore(d Dialect) (Store, error) {
 		querier = &dialectquery.Postgres{}
 	case Mysql:
 		querier = &dialectquery.Mysql{}
+	case Spanner:
+		querier = &dialectquery.Spanner{}
 	case Sqlite3:
 		querier = &dialectquery.Sqlite3{}
 	case Sqlserver:
@@ -94,6 +99,12 @@ var _ Store = (*store)(nil)
 func (s *store) CreateVersionTable(ctx context.Context, tx *sql.Tx, tableName string) error {
 	q := s.querier.CreateTable(tableName)
 	_, err := tx.ExecContext(ctx, q)
+	return err
+}
+
+func (s *store) CreateVersionTableNoTx(ctx context.Context, db *sql.DB, tableName string) error {
+	q := s.querier.CreateTable(tableName)
+	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
